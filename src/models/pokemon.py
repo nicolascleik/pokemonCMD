@@ -2,9 +2,10 @@ class Pokemon:
     """
     Superclasse abstrata que serve de molde para todos os Pokémon do jogo.
     """
-    def __init__(self, nome: str, hp_maximo: int, poder_ataque: int, arte_ascii: str):
+    def __init__(self, nome: str, hp_maximo: int, poder_ataque: int, raridade: str ,arte_ascii: str):
         self.nome: str = nome.upper() 
         self.hp_maximo: int = hp_maximo
+        self.raridade: str = raridade.upper()
         
         self.__vida_atual: int = hp_maximo 
         

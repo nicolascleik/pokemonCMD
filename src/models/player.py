@@ -8,6 +8,7 @@ class Player:
         self.nome: str = nome.upper()
         self.__dinheiro: float = 0.0
         self.divida: float = 0.0
+        self.tamanho_bolsa_de_pokemons = 3
         self.equipe: list = []
         self.inventario: dict = {}
 
@@ -81,11 +82,11 @@ class Player:
     # --- GERENCIAMENTO DA EQUIPE ---
     def adicionar_pokemon(self, pokemon):
         """Adiciona um objeto Pokémon à lista (array) da equipe."""
-        if len(self.equipe) < 10: # Limite de 10 Pokémon
+        if len(self.equipe) < self.tamanho_bolsa_de_pokemons: # Limite de pokemons baseado na bolsa do jogador --- pode aumentar caso ele compre uma bolsa maior no mercadinho
             self.equipe.append(pokemon)
             print(f"{pokemon.nome} foi adicionado à sua equipe!")
         else:
-            print("Sua equipe já está cheia! (Máximo de 10).")
+            print(f"Sua equipe já está cheia! (Máximo de {self.tamanho_bolsa_de_pokemons}).")
 
     def get_equipe(self):
         """Lista todos os pokemons do jogador."""
