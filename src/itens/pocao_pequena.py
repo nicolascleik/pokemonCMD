@@ -1,3 +1,5 @@
+from models.item import Item
+
 class PocaoPequena(Item): 
     def __init__(self):
         super().__init__("POÇÃO PEQUENA", 20.0) 
