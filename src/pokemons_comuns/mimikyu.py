@@ -1,18 +1,18 @@
 from models.pokemon import Pokemon
 from . import arts
 
-class Venonat(Pokemon):
+class Mimikyu(Pokemon):
     """
-    Classe que representa o Pokémon Venonat.
+    Classe que representa o Pokémon Mimikyu.
     É um Pokémon do tipo Normal, de raridade Comum.
     """
     def __init__(self):
-        arte = arts.venonat
+        arte = arts.mimikyu
         
         super().__init__(
-            nome="Venonat", 
-            hp_maximo=45, 
-            poder_ataque=12, 
+            nome="Mimikyu", 
+            hp_maximo=40, 
+            poder_ataque=15, 
             raridade="COMUM", 
             arte_ascii=arte
         )
