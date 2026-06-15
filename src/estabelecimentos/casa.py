@@ -1,4 +1,4 @@
-from estabelecimentos.estabelecimento import Estabelecimento
+from models.estabelecimento import Estabelecimento
 
 class Casa(Estabelecimento):
     """

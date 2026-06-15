@@ -1,4 +1,4 @@
-from pokemon.pokemon import Pokemon
+from models.pokemon import Pokemon
 from . import arts
 
 class Mewtwo(Pokemon):
