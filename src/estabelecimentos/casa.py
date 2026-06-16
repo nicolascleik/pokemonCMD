@@ -38,5 +38,6 @@ class Casa(Estabelecimento):
 
             elif escolha == "0":
                 print("Você decidiu voltar para a cidade.")
+                break
             else:
                 print("Opção inválida.")
