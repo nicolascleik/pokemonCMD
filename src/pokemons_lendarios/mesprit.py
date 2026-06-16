@@ -6,7 +6,7 @@ class Mesprit(Pokemon):
         super().__init__(
             nome="Mesprit",
             hp_maximo=350,
-            poder_ataque=30,
+            poder_ataque=50,
             raridade="LENDARIO",
             arte_ascii=arts.mesprit
         )

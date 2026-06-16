@@ -1,113 +1,186 @@
 import random
 
+
 class Player:
     """
-    Classe que representa o jogador e gerencia seus recursos (dinheiro, equipe e inventário).
+    Classe que representa o jogador e centraliza a gestão de estado dos seus recursos.
+    Siga o princípio do encapsulamento: nenhuma classe externa deve manipular
+    as coleções ou saldos diretamente.
     """
+
     def __init__(self, nome: str):
         self.nome: str = nome.upper()
-        self.__dinheiro: float = 0.0
-        self.divida: float = 0.0
-        self.tamanho_bolsa_de_pokemons = 3
-        self.equipe: list = []
-        self.inventario: dict = {}
+        self._dinheiro: float = 0.0
+        self._divida: float = 0.0
+        self._energia_maxima: int = 100
+        self._energia_atual: int = self._energia_maxima
+        self._tamanho_bolsa_de_pokemons: int = 3
+        self._equipe: list = []
+        self._inventario: dict[str, int] = {}
 
-    def tentar_fugir(self):
+    # --- SERRALHERIA DE INVENTÁRIO ---
+
+    def _normalizar_nome_item(self, nome_item: str) -> str:
+        """Método utilitário interno para garantir consistência de chaves."""
+        return nome_item.strip().upper()
+
+    def possui_item(self, nome_item: str) -> bool:
         """
-        Calcula a chance de fuga do jogador (50% de chance).
-        Retorna True se conseguiu fugir, False se falhou.
+        Consulta segura de inventário.
+        A Batalha deve chamar este método em vez de acessar o dict.
         """
-        print(f"{self.nome} está tentando fugir...")
-        
-        sucesso = random.choice([True, False]) 
-        
-        if sucesso:
-            print("Você fugiu com sucesso!")
+        nome_tratado = self._normalizar_nome_item(nome_item)
+        # O método .get() retorna 0 se a chave não existir, evitando KeyError
+        return self._inventario.get(nome_tratado, 0) > 0
+
+    def adicionar_item(self, nome_item: str, quantidade: int = 1) -> None:
+        """Adiciona uma quantidade do item ao inventário de forma padronizada."""
+        nome_tratado = self._normalizar_nome_item(nome_item)
+
+        if nome_tratado in self._inventario:
+            self._inventario[nome_tratado] += quantidade
+        else:
+            self._inventario[nome_tratado] = quantidade
+
+        print(f"{quantidade}x {nome_tratado}(s) adicionado(s) ao inventário!")
+
+    def consumir_item(self, nome_item: str) -> bool:
+        """
+        Consome um item se disponível.
+        Retorna True se a operação foi bem-sucedida, False caso contrário.
+        """
+        nome_tratado = self._normalizar_nome_item(nome_item)
+
+        if self.possui_item(nome_item):
+            self._inventario[nome_tratado] -= 1
+
+            # Limpeza de chaves vazias para não poluir a memória
+            if self._inventario[nome_tratado] <= 0:
+                del self._inventario[nome_tratado]
+
             return True
-        else:
-            print("Não foi possível fugir! O Pokémon selvagem bloqueou o caminho!")
-            return False
 
-    
-    # --- GERENCIAMENTO FINANCEIRO ---
-    def get_dinheiro(self):
-        return self.__dinheiro
-
-    def alterar_dinheiro(self, quantidade: float):
-        """Adiciona ou remove dinheiro. Impede que o saldo fique negativo."""
-        self.__dinheiro += quantidade
-        if self.__dinheiro < 0:
-            self.__dinheiro = 0.0
-
-    def contrair_divida(self, valor: float):
-        self.divida += valor
-
-    def pagar_divida(self, valor: float):
-        """Paga uma parte ou o total da dívida usando o dinheiro atual."""
-        if self.__dinheiro >= valor:
-            self.alterar_dinheiro(-valor)
-            self.divida -= valor
-            if self.divida < 0:
-                self.divida = 0.0
-            print(f"Dívida de ${valor} paga com sucesso!")
-        else:
-            print("Dinheiro insuficiente para pagar esse valor da dívida.")
-
-    def aplicar_juros_diarios(self):
-        """Aplica 10% de juros na dívida ao dormir."""
-        if self.divida > 0:
-            self.divida += (self.divida * 0.10)
-
-    # --- GERENCIAMENTO DE INVENTÁRIO ---
-    def adicionar_item(self, nome_item: str, quantidade: int = 1):
-        """Adiciona um item ao dicionário do inventário."""
-        if nome_item in self.inventario:
-            self.inventario[nome_item] += quantidade
-        else:
-            self.inventario[nome_item] = quantidade
-        print(f"{quantidade}x {nome_item}(s) adicionado(s) ao inventário!")
-
-    def usar_item(self, nome_item: str):
-        """Consome um item do inventário, removendo a chave se chegar a zero."""
-        if nome_item in self.inventario:
-            if self.inventario[nome_item] > 1:
-                self.inventario[nome_item] -= 1
-            else:
-                self.inventario.pop(nome_item)
-            return True
-        else:
-            print(f"Você não tem {nome_item} no inventário.")
-            return False
-
-    # --- GERENCIAMENTO DA EQUIPE ---
-    def adicionar_pokemon(self, pokemon):
-        """Adiciona um objeto Pokémon à lista (array) da equipe."""
-        if len(self.equipe) < self.tamanho_bolsa_de_pokemons: # Limite de pokemons baseado na bolsa do jogador --- pode aumentar caso ele compre uma bolsa maior no mercadinho
-            self.equipe.append(pokemon)
-            print(f"{pokemon.nome} foi adicionado à sua equipe!")
-        else:
-            print(f"Sua equipe já está cheia! (Máximo de {self.tamanho_bolsa_de_pokemons}).")
-
-    def get_equipe(self):
-        """Lista todos os pokemons do jogador."""
-        if not self.equipe:
-            print("Sua equipe está vazia.")
-        else:
-            print(f"--- Equipe de {self.nome} ---")
-            for pokemon in self.equipe:
-                print(pokemon)
-
-    def remover_pokemon(self, nome_pokemon: str):
-        """Busca o pokemon pelo nome na equipe e o remove caso exista."""
-        nome_pokemon = nome_pokemon.upper() 
-        for pokemon in self.equipe:
-            if pokemon.nome == nome_pokemon:
-                self.equipe.remove(pokemon)
-                print(f"{pokemon.nome} foi removido da sua equipe.")
-                return True 
-                
-        print(f"{nome_pokemon} não foi encontrado na sua equipe.")
+        print(f"Você não tem {nome_tratado} no inventário.")
         return False
 
-    def __str__(self):
-        return f"JOGADOR: {self.nome} | Saldo: ${self.__dinheiro:.2f} | Dívida: ${self.divida:.2f}"
+    def expandir_bolsa(self, nova_capacidade: int) -> None:
+        """Permite que o Mercadinho aumente o limite da equipe."""
+        if nova_capacidade > self._tamanho_bolsa_de_pokemons:
+            self._tamanho_bolsa_de_pokemons = nova_capacidade
+            print(f"Capacidade da bolsa expandida para {nova_capacidade} Pokémons!")
+
+    def contar_pokemons_por_raridade(self, raridade: str) -> int:
+        """Utilizado pelo GameManager para checar a condição de vitória."""
+        raridade_tratada = raridade.strip().upper()
+        contador = sum(1 for pkm in self._equipe if pkm.raridade == raridade_tratada)
+        return contador
+
+    # --- FINANÇAS E SISTEMA DE FOME ---
+
+    @property
+    def dinheiro(self) -> float:
+        return self._dinheiro
+
+    @property
+    def divida(self) -> float:
+        return self._divida
+
+    @property
+    def capacidade_bolsa(self) -> int:
+        return self._tamanho_bolsa_de_pokemons
+
+    @property
+    def energia_atual(self) -> int:
+        return self._energia_atual
+
+    @property
+    def energia_maxima(self) -> int:
+        return self._energia_maxima
+
+    def gastar_energia(self, quantidade: int) -> bool:
+        """
+        Deduz energia ao viajar ou realizar trabalhos braçais.
+        Retorna True se o jogador desmaiou de fome/exaustão (energia <= 0).
+        """
+        self._energia_atual -= quantidade
+        if self._energia_atual <= 0:
+            self._energia_atual = 0
+            print(f"\n[!] A barriga de {self.nome} roncou alto... A visão escureceu de tanta fome e exaustão!")
+            return True
+        return False
+
+    def recuperar_energia(self, quantidade: int) -> None:
+        """Chamado quando o jogador consome um item de comida."""
+        nova_energia = self._energia_atual + quantidade
+        self._energia_atual = min(nova_energia, self._energia_maxima)
+        print(f"Você comeu algo! Energia recuperada: {self._energia_atual}/{self._energia_maxima}")
+
+    def resetar_energia(self) -> None:
+        """Chamado pelo relógio quando o dia vira (dormir na cama)."""
+        self._energia_atual = self._energia_maxima
+
+    def modificar_dinheiro(self, quantidade: float) -> None:
+        """Adiciona ou subtrai dinheiro, garantindo que o saldo não fique negativo."""
+        self._dinheiro += quantidade
+        if self._dinheiro < 0:
+            self._dinheiro = 0.0
+
+    def cobrar_gastos_diarios(self, custo_comida: float) -> bool:
+        """
+        Deduz o custo de sobrevivência diária.
+        Retorna True se o jogador conseguiu pagar,
+        ou False se não tiver dinheiro suficiente (Gatilho de Falência/Morte por Fome).
+        """
+        if self._dinheiro >= custo_comida:
+            self.modificar_dinheiro(-custo_comida)
+            return True
+        return False
+
+    def modificar_divida(self, quantidade: float) -> None:
+        """
+        Altera o valor total da dívida.
+        A taxa de juros deve ser calculada externamente e injetada aqui.
+        """
+        self._divida += quantidade
+        if self._divida < 0:
+            self._divida = 0.0
+
+    # --- GERENCIAMENTO DA EQUIPE (CONTRATO E POLIMORFISMO) ---
+
+    def obter_equipe(self) -> list:
+        """Retorna uma cópia da lista ou uma visão de leitura para evitar mutação externa."""
+        return self._equipe.copy()
+
+    def adicionar_pokemon(self, pokemon) -> bool:
+        """
+        Tenta adicionar um Pokémon à equipe respeitando o limite atual da bolsa.
+        Retorna True se adicionado, False se a equipe estiver cheia.
+        """
+        if len(self._equipe) < self._tamanho_bolsa_de_pokemons:
+            self._equipe.append(pokemon)
+            print(f"{pokemon.nome} foi adicionado à sua equipe!")
+            return True
+
+        print(f"Sua equipe já está cheia! (Máximo de {self._tamanho_bolsa_de_pokemons}).")
+        return False
+
+    def remover_pokemon(self, nome_pokemon: str) -> bool:
+        """Busca e remove o Pokémon pelo nome. Retorna True se removido."""
+        nome_tratado = nome_pokemon.strip().upper()
+
+        for i, pokemon in enumerate(self._equipe):
+            if pokemon.nome == nome_tratado:
+                removido = self._equipe.pop(i)
+                print(f"{removido.nome} foi liberado da sua equipe.")
+                return True
+
+        print(f"{nome_tratado} não foi encontrado na sua equipe.")
+        return False
+
+    def tentar_fugir(self) -> bool:
+        """Calcula a chance probabilística de fuga (50%)."""
+        print(f"{self.nome} está tentando fugir...")
+        return random.choice([True, False])
+
+    def __str__(self) -> str:
+        return f"JOGADOR: {self.nome} | Saldo: ${self._dinheiro:.2f} | Dívida: ${self._divida:.2f}"

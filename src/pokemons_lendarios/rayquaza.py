@@ -6,7 +6,7 @@ class Rayquaza(Pokemon):
         super().__init__(
             nome="Rayquaza",
             hp_maximo=480,
-            poder_ataque=42,
+            poder_ataque=65,
             raridade="LENDARIO",
             arte_ascii=arts.rayquaza
         )

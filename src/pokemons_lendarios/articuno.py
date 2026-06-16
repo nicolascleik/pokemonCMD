@@ -6,7 +6,7 @@ class Articuno(Pokemon):
         super().__init__(
             nome="Articuno",
             hp_maximo=400,
-            poder_ataque=35,
+            poder_ataque=60,
             raridade="LENDARIO",
             arte_ascii=arts.articuno
         )

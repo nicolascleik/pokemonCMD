@@ -5,9 +5,11 @@ class PocaoGrande(Item):
         super().__init__("POÇÃO GRANDE", 50.0) 
         self.poder_cura = 50
 
-    def usar(self, alvo): 
+    def usar(self, alvo) -> bool:
+        if alvo.vida_atual >= alvo.hp_maximo:
+            print(f"{alvo.nome} já está com a vida cheia!")
+            return False
+
         print(f"Usando {self.nome} em {alvo.nome}...")
-        
-        alvo.receber_dano(-self.poder_cura)
-        print(f"{alvo.nome} recuperou vida!")
+        alvo.curar(self.poder_cura)
         return True

@@ -6,7 +6,7 @@ class Lugia(Pokemon):
         super().__init__(
             nome="Lugia",
             hp_maximo=420,
-            poder_ataque=38,
+            poder_ataque=55,
             raridade="LENDARIO",
             arte_ascii=arts.lugia
         )

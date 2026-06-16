@@ -6,7 +6,6 @@ from models.batalha import Batalha
 from pokemons_comuns.pikachu import Pikachu
 from pokemons_comuns.charmander import Charmander
 from pokemons_comuns.bulbasaur import Bulbasaur
-from pokemons_comuns.squirtle import Squirtle
 from pokemons_comuns.eevee import Eevee
 from pokemons_comuns.meowth import Meowth
 from pokemons_comuns.venonat import Venonat
@@ -14,10 +13,8 @@ from pokemons_comuns.butterfree import Butterfree
 from pokemons_comuns.gengar import Gengar
 from pokemons_comuns.mew import Mew
 from pokemons_comuns.mimikyu import Mimikyu
-from pokemons_comuns.slowpoke import Slowpoke
 from pokemons_comuns.snorlax import Snorlax
 from pokemons_comuns.charizard import Charizard
-from pokemons_comuns.blastoise import Blastoise
 from pokemons_comuns.jigglypuff import Jigglypuff
 from pokemons_comuns.haunter import Haunter
 from pokemons_comuns.chikoritta import Chikoritta
@@ -26,69 +23,86 @@ from pokemons_comuns.chikoritta import Chikoritta
 from pokemons_lendarios.mewtwo import Mewtwo
 from pokemons_lendarios.articuno import Articuno
 from pokemons_lendarios.dialga import Dialga
-from pokemons_lendarios.kyogre import Kyogre
 from pokemons_lendarios.lugia import Lugia
 from pokemons_lendarios.mesprit import Mesprit
 from pokemons_lendarios.rayquaza import Rayquaza
 
+
 class Floresta(Estabelecimento):
     """
     Classe filha que representa a floresta.
-    Povoada com a Pokedex completa do projeto.
+    Respeita o contrato de Estabelecimento e consome recursos por busca.
     """
+
     def __init__(self):
         super().__init__("Floresta", tempo_de_ir=2)
-        
-        # Lista de Pokemons Comuns
+
         self.comuns = [
-            Pikachu, Charmander, Bulbasaur, Squirtle, 
+            Pikachu, Charmander, Bulbasaur,
             Eevee, Meowth, Venonat, Butterfree,
-            Gengar, Mew, Mimikyu, Slowpoke, Snorlax,
-            Charizard, Blastoise, Jigglypuff, Haunter, Chikoritta
+            Gengar, Mew, Mimikyu, Snorlax,
+            Charizard, Jigglypuff, Haunter, Chikoritta
         ]
-        
-        # Lista de Pokemons Lendarios
+
         self.lendarios = [
-            Mewtwo, Articuno, Dialga, Kyogre, 
+            Mewtwo, Articuno, Dialga,
             Lugia, Mesprit, Rayquaza
         ]
 
-    def rodar_floresta(self, player):
+    def interagir(self, jogador, relogio) -> None:
         while True:
             print("\n" + "T " * 15)
             print("      FLORESTA VIRIDIAN      ")
             print("T " * 15)
-            print("1 - Procurar Pokemon Selvagem")
+            print("1 - Procurar Pokémon Selvagem (Gasta 1h e 10 Energia)")
             print("0 - Sair da Floresta")
-            
+
             escolha = input("\nO que deseja fazer? ")
 
-            if escolha == "1":
-                print("\nVoce caminha silenciosamente pela grama alta...")
-                
-                if random.random() < 0.8:
-                    if random.random() < 0.05:
-                        pkm_classe = random.choice(self.lendarios)
-                        print("\nO AR ESTA FICANDO PESADO... ALGO PODEROSO SE APROXIMA!")
-                    else:
-                        pkm_classe = random.choice(self.comuns)
-                    
-                    wild_pkm = pkm_classe()
-                    
-                    batalha = Batalha(player, wild_pkm)
-                    venceu_ou_fugiu = batalha.iniciar()
-                    
-                    if not venceu_ou_fugiu:
-                        print("\nVoce foi derrotado! Um Pokemon selvagem foi demais para voce.")
-                        return 
-                    
-                    input("\nPressione Enter para continuar na floresta...")
-                else:
-                    print("Nada alem de vento e folhas secas por aqui.")
-                    input("\nPressione Enter para continuar...")
-
-            elif escolha == "0":
+            if escolha == "0":
                 print("Saindo da floresta...")
                 break
+
+            elif escolha == "1":
+                if relogio.hora_atual + 1 >= 24:
+                    print("Está ficando muito tarde para explorar o mato. Melhor ir embora!")
+                    continue
+                if jogador.energia_atual <= 10:
+                    print("Você está com muita fome para procurar Pokémons agora.")
+                    continue
+
+                relogio.avancar_tempo(1)
+                jogador.gastar_energia(10)
+                print(
+                    f"\nVocê caminha silenciosamente... (Hora: {relogio.hora_atual}h | Energia: {jogador.energia_atual})")
+
+                sorteio = random.random()
+
+                if sorteio <= 0.20:
+                    # De 0.00 até 0.20 (20%)
+                    print("Nada além de vento e folhas secas por aqui.")
+                    input("Pressione Enter para continuar...")
+
+                elif sorteio <= 0.22:
+                    # De 0.20 até 0.22 (2%)
+                    print("\nO AR ESTÁ FICANDO PESADO... ALGO PODEROSO SE APROXIMA!")
+                    pkm_classe = random.choice(self.lendarios)
+
+                    batalha = Batalha(jogador, pkm_classe())
+                    venceu_ou_fugiu = batalha.iniciar()
+
+                    if not venceu_ou_fugiu:
+                        return  # Sai da floresta e volta pro main.py se o jogador desmaiar
+
+                else:
+                    # De 0.22 até 1.00 (78%)
+                    pkm_classe = random.choice(self.comuns)
+                    print("\nUm Pokémon selvagem pulou da grama alta!")
+
+                    batalha = Batalha(jogador, pkm_classe())
+                    venceu_ou_fugiu = batalha.iniciar()
+
+                    if not venceu_ou_fugiu:
+                        return  # Sai da floresta e volta pro main.py se o jogador desmaiar
             else:
-                print("Opcao invalida!")
+                print("Opção inválida!")

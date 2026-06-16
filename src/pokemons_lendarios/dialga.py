@@ -6,7 +6,7 @@ class Dialga(Pokemon):
         super().__init__(
             nome="Dialga",
             hp_maximo=450,
-            poder_ataque=40,
+            poder_ataque=75,
             raridade="LENDARIO",
             arte_ascii=arts.dialga
         )

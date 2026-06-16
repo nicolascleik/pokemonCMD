@@ -6,7 +6,7 @@ class Kyogre(Pokemon):
         super().__init__(
             nome="Kyogre",
             hp_maximo=450,
-            poder_ataque=40,
+            poder_ataque=70,
             raridade="LENDARIO",
             arte_ascii=arts.kyogre
         )

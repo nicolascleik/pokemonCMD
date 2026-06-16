@@ -1,51 +1,108 @@
-import sys
-import os
-
-# Adiciona a pasta src ao path para os imports funcionarem corretamente
-sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
-
 from models.player import Player
 from models.relogio import Relogio
-from estabelecimentos.casa import Casa  
-from estabelecimentos.hospital import Hospital
+from models.gameManager import GameManager
+from models.agiota import Agiota
+from models.batalha import Batalha
+
+from estabelecimentos.casa import Casa
 from estabelecimentos.mercadinho import Mercadinho
-from estabelecimentos.arena_de_batalha import Arena_de_batalha
-from estabelecimentos.centro_pokemon import Centro_pokemon
+from estabelecimentos.centro_pokemon import CentroPokemon
 from estabelecimentos.floresta import Floresta
+from estabelecimentos.caverna_cerulean import CavernaCerulean
+from estabelecimentos.lago_de_pesca import LagoDePesca
 from estabelecimentos.cassino import Cassino
-from estabelecimentos.lan_house import Lan_house
+from estabelecimentos.arena_de_batalha import ArenaDeBatalha
+from estabelecimentos.beco_escuro import BecoEscuro
+
 from pokemons_comuns.pikachu import Pikachu
 from pokemons_comuns.charmander import Charmander
 from pokemons_comuns.bulbasaur import Bulbasaur
 from pokemons_comuns.squirtle import Squirtle
 
+# Pokémons usados como cobradores do Agiota
+from pokemons_comuns.gengar import Gengar
+from pokemons_comuns.haunter import Haunter
+from pokemons_comuns.meowth import Meowth
+
+import random
+
 def limpar_tela():
-    os.system('cls' if os.name == 'nt' else 'clear')
+    print("\n" * 100)
+
+def _disparar_cobradores(player, relogio, game_manager):
+    """
+    Spawna um encontro com os Pokémons do agiota quando cobrador_ativo está True.
+    Chamado no topo de cada iteração do game loop.
+    A batalha tem fuga_bloqueada=False — o jogador pode tentar fugir, mas com risco.
+    Se perder, aplica penalidade de desmaio normalmente.
+    """
+    cobradores = [Gengar, Haunter, Meowth]
+    cobrador_classe = random.choice(cobradores)
+    cobrador = cobrador_classe()
+
+    print("\n" + "!" * 50)
+    print(" OS POKÉMONS DO AGIOTA TE ENCONTRARAM NA RUA!")
+    print("!" * 50)
+    print(f" Um {cobrador.nome} bloqueou seu caminho!")
+    print(" Você pode lutar ou tentar fugir...")
+    input("Pressione Enter para iniciar o confronto...")
+
+    batalha = Batalha(player, cobrador, fuga_bloqueada=False)
+    resultado = batalha.iniciar()
+
+    if not resultado:
+        # O jogador perdeu a batalha com o cobrador — aplica penalidade
+        game_manager.aplicar_penalidade_desmaio(relogio)
+
+
+def _processar_virada_de_dia(relogio, player, agiota, dia_anterior):
+    """
+    Centraliza todos os eventos que devem ocorrer quando um novo dia começa.
+    Chamado sempre que relogio.dia_atual avançou em relação a dia_anterior.
+    """
+    if relogio.dia_atual > dia_anterior:
+        # 1. Juros e prazo do agiota
+        agiota.verificar_virada_de_dia()
+
+        # 2. Gasto diário obrigatório com comida
+        CUSTO_DIARIO_COMIDA = 20.0
+        pagou = player.cobrar_gastos_diarios(CUSTO_DIARIO_COMIDA)
+        if pagou:
+            print(f"\n[Dia {relogio.dia_atual}] Gastos diários com comida descontados: -${CUSTO_DIARIO_COMIDA:.2f}")
+        else:
+            print(f"\n[!] Você não tem dinheiro para se alimentar hoje! (Custo: ${CUSTO_DIARIO_COMIDA:.2f})")
+            print("    Sem comida, sua energia máxima está reduzida até você conseguir pagar.")
+            # Penalidade por fome: reduz energia máxima no dia seguinte
+            # (uma derrota hard depende do GameManager.verificar_derrota)
+
 
 def main():
     limpar_tela()
     print("====================================================")
-    print("           BEM-VINDO AO POKEMON CMD                ")
+    print("           BEM-VINDO AO POKÉMON CMD (HARD MODE)     ")
     print("====================================================")
-    print("      Prepare-se para sua jornada Pokemon!         ")
+    print("      A sua persistência arquitetural será testada! ")
     print("====================================================\n")
-    
-    nome = input("Qual o seu nome, jovem treinador? ")
+
+    nome = input("Qual o seu nome, jovem treinador? ").strip()
     if not nome:
         nome = "Ash"
-        
+
+    # Inicialização das Entidades de Estado
     player = Player(nome)
     relogio = Relogio()
-    
-    # Escolha do inicial
-    print("\nEscolha seu Pokemon inicial para começar a aventura:")
-    print("1 - Pikachu (Eletrico)")
+    game_manager = GameManager(player)
+    agiota = Agiota(player)
+
+    # Escolha do Pokémon Inicial
+    print("\nEscolha seu Pokémon inicial para começar a aventura:")
+    print("1 - Pikachu (Elétrico)")
     print("2 - Charmander (Fogo)")
     print("3 - Bulbasaur (Planta)")
-    print("4 - Squirtle (Agua)")
-    
+    print("4 - Squirtle (Água)")
+
     while True:
-        escolha = input("Digite o numero (1-4): ")
+        escolha = input("Digite o número (1-4): ").strip()
         if escolha == "1":
             player.adicionar_pokemon(Pikachu())
             break
@@ -59,120 +116,126 @@ def main():
             player.adicionar_pokemon(Squirtle())
             break
         else:
-            print("Escolha invalida! Tente novamente.")
+            print("Escolha inválida! Tente novamente.")
 
-    # Instancia os locais
-    casa = Casa()
-    hospital = Hospital()
-    mercadinho = Mercadinho()
-    arena = Arena_de_batalha()
-    centro = Centro_pokemon()
-    floresta = Floresta()
-    cassino = Cassino()
-    lan_house = Lan_house()
-    
-    locais = [casa, hospital, mercadinho, floresta, arena, centro, cassino, lan_house]
+    # Capital de giro inicial
+    player.modificar_dinheiro(50.0)
 
-    player.alterar_dinheiro(50.0) # Comeca com um pouco de dinheiro para pocoes
-    
-    input("\nSua jornada comeca agora! Pressione Enter para continuar...")
+    # O MAPA DO JOGO
+    locais = [
+        Casa(),
+        Mercadinho(),
+        CentroPokemon(),
+        Floresta(),
+        CavernaCerulean(),
+        LagoDePesca(),
+        Cassino(),
+        ArenaDeBatalha(),
+        BecoEscuro()
+    ]
 
+    input("\nSua jornada começa agora! Pressione Enter para continuar...")
+
+    # ==========================================
+    # O LOOP PRINCIPAL DO MUNDO (GAME LOOP)
+    # ==========================================
     while True:
         limpar_tela()
-        print("="*50)
-        print(f" DIA: {relogio.dia_atual} | HORA: {relogio.get_hora_atual():02d}:00")
+
+        # --- A. COBRADORES DO AGIOTA (roda antes de tudo) ---
+        # Se o prazo da dívida estourou, o encontro é forçado a cada turno.
+        if agiota.cobrador_ativo:
+            _disparar_cobradores(player, relogio, game_manager)
+
+        # --- B. VERIFICAÇÃO DE FIM DE JOGO ---
+        # Separamos vitória de derrota para garantir que apenas uma mensagem apareça.
+        if game_manager.verificar_vitoria():
+            print("\nParabéns! Encerrando o jogo...")
+            break
+        if game_manager.verificar_derrota():
+            print("\nGame Over. Encerrando o jogo...")
+            break
+
+        # --- C. HUD GLOBAL ---
+        print("=" * 60)
+        print(
+            f" DIA: {relogio.dia_atual:<3} | HORA: {relogio.hora_atual:02d}:00h | ENERGIA: {player.energia_atual}/{player.energia_maxima}")
         print(f" TREINADOR: {player.nome}")
-        print(f" SALDO: ${player.get_dinheiro():.2f} | DIVIDA: ${player.divida:.2f}")
-        
-        if player.equipe:
-            pkm = player.equipe[0]
-            print(f" POKEMON ATIVO: {pkm.nome} (HP: {pkm.get_vida_atual()}/{pkm.hp_maximo})")
-        
-        print("="*50)
-        
-        print("\nOnde voce deseja ir agora?")
+        print(f" SALDO: ${player.dinheiro:.2f} | DÍVIDA: ${player.divida:.2f}")
+
+        equipe = player.obter_equipe()
+        if equipe:
+            pkm_ativo = equipe[0]
+            print(f" POKÉMON ATIVO: {pkm_ativo.nome} (HP: {pkm_ativo.vida_atual}/{pkm_ativo.hp_maximo})")
+        else:
+            print(" POKÉMON ATIVO: Nenhum (Alerta Crítico)")
+
+        if agiota.cobrador_ativo:
+            print(" [ALERTA] OS COBRADORES DO AGIOTA ESTÃO TE CAÇANDO!")
+        print("=" * 60)
+
+        # --- D. MENU DE EXIBIÇÃO DO MAPA ---
+        print("\nPara onde você deseja viajar?")
         for i, local in enumerate(locais, 1):
-            print(f"{i:2d} - {local.nome:<20} | Custo: {local.tempo_de_ir}h")
-        print(" 0 - Sair do Jogo")
-        
-        opcao = input("\nEscolha uma opcao: ")
-        
+            print(f" {i:2d} - {local.nome:<20} | Custo: {local.tempo_de_ir}h | Energia: -{local.tempo_de_ir * 10}")
+        print("  0 - Sair do Jogo")
+        print("  9 - Falar com o Agiota")
+
+        opcao = input("\nEscolha seu destino: ").strip()
+
         if opcao == "0":
-            confirmar = input("Tem certeza que deseja sair? (s/n): ").lower()
+            confirmar = input("Tem certeza que deseja desistir da sua jornada? (s/n): ").lower().strip()
             if confirmar == 's':
-                print("\nSalvando progresso... (Brincadeira, ainda nao temos save!)")
-                print("Obrigado por jogar Pokemon CMD!")
+                print("\nObrigado por jogar Pokémon CMD!")
                 break
             continue
-            
+
+        if opcao == "9":
+            valor = float(input("Quanto quer pegar emprestado? "))
+            prazo = int(input("Em quantos dias vai pagar? "))
+            agiota.pegar_emprestimo(valor, prazo)
+            input("Pressione Enter...")
+            continue
+
         try:
             indice = int(opcao) - 1
             if 0 <= indice < len(locais):
                 local_escolhido = locais[indice]
-                
-                # Viaja para o local
-                desmaiou = local_escolhido.ir(relogio)
-                
-                if desmaiou:
-                    print("\n" + "!"*40)
-                    print("EXAUSTAO! Voce passou da meia-noite e desmaiou!")
-                    print("Um bom samaritano te encontrou e te levou ao Hospital.")
-                    print("!"*40)
-                    relogio.dormir(player)
-                    input("\nPressione Enter para acordar no hospital...")
-                    hospital.rodar_hospital(player)
-                else:
-                    # Logica de interacao baseada no local
-                    if isinstance(local_escolhido, Casa):
-                        while True:
-                            limpar_tela()
-                            print(f"\n--- {local_escolhido.nome} ---")
-                            print("1 - Descansar na cama (Dormir ate o dia seguinte)")
-                            print("0 - Voltar para a rua")
-                            sub = input("\nO que deseja fazer? ")
-                            if sub == "1":
-                                local_escolhido.dormir(player, relogio)
-                                input("\nPressione Enter para continuar...")
-                                break
-                            elif sub == "0":
-                                break
-                    
-                    elif isinstance(local_escolhido, Hospital):
-                        local_escolhido.rodar_hospital(player)
-                        
-                    elif isinstance(local_escolhido, Mercadinho):
-                        local_escolhido.rodar_mercadinho(player)
-                        
-                    elif isinstance(local_escolhido, Cassino):
-                        local_escolhido.rodar_cassino(player)
-                    
-                    elif isinstance(local_escolhido, Centro_pokemon):
-                        print("\n--- CENTRO POKEMON ---")
-                        print("Aqui voce podera gerenciar seu PC no futuro.")
-                        player.get_equipe()
-                        input("\nPressione Enter para voltar...")
-                        
-                    elif isinstance(local_escolhido, Floresta):
-                        local_escolhido.rodar_floresta(player)
 
-                    elif isinstance(local_escolhido, Arena_de_batalha):
-                        print("\n--- ARENA DE BATALHA ---")
-                        print("A arena esta fechada para reformas. Volte em breve!")
-                        input("\nPressione Enter para voltar...")
-                    
-                    else:
-                        print(f"\nVoce chegou ao {local_escolhido.nome}.")
-                        print("Ainda nao ha atividades disponiveis aqui.")
-                        input("\nPressione Enter para voltar...")
+                # Guarda o estado temporal antes do deslocamento
+                dia_anterior = relogio.dia_atual
+
+                # --- E. RESOLUÇÃO DE MOVIMENTAÇÃO ---
+                desmaiou = local_escolhido.ir(relogio, player)
+
+                if desmaiou:
+                    # Desmaio na estrada: penalidade e virada de dia forçada
+                    game_manager.aplicar_penalidade_desmaio(relogio)
+                else:
+                    # --- F. POLIMORFISMO: o local assume o controle ---
+                    local_escolhido.interagir(player, relogio)
+
+                    equipe = player.obter_equipe()
+                    if equipe and all(p.vida_atual <= 0 for p in equipe):
+                        print("\n[!] TODOS OS SEUS POKÉMONS DESMAIARAM! Você entra em pânico e desmaia também!")
+                        game_manager.aplicar_penalidade_desmaio(relogio)
+
+                # --- G. GATILHO DE VIRADA DE DIA (cobre desmaio e sono voluntário) ---
+                # Funciona para os dois fluxos acima, pois ambos podem virar o dia.
+                _processar_virada_de_dia(relogio, player, agiota, dia_anterior)
+
+                input("\nPressione Enter para continuar a exploração...")
             else:
-                print("Opcao invalida! Escolha um numero da lista.")
+                print("Opção inválida! Escolha um número que esteja listado no mapa.")
                 input("Pressione Enter para tentar novamente...")
+
         except ValueError:
-            print("Entrada invalida! Digite apenas numeros.")
+            print("Entrada inválida! Digite apenas números inteiros.")
             input("Pressione Enter para continuar...")
         except Exception as e:
-            print(f"Ocorreu um erro inesperado: {e}")
+            print(f"Erro fatal de execução tratado pelo barramento principal: {e}")
             input("Pressione Enter para continuar...")
+
 
 if __name__ == "__main__":
     main()

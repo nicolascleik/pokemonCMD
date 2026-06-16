@@ -12,7 +12,7 @@ class Mewtwo(Pokemon):
         super().__init__(
             nome="Mewtwo", 
             hp_maximo=500, 
-            poder_ataque=45, 
+            poder_ataque=80,
             raridade="LENDARIO", 
             arte_ascii=arte
         )
