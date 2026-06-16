@@ -131,7 +131,7 @@ def main():
         LagoDePesca(),
         Cassino(),
         ArenaDeBatalha(),
-        BecoEscuro()
+        BecoEscuro(Agiota)
     ]
 
     input("\nSua jornada começa agora! Pressione Enter para continuar...")
@@ -179,7 +179,6 @@ def main():
         for i, local in enumerate(locais, 1):
             print(f" {i:2d} - {local.nome:<20} | Custo: {local.tempo_de_ir}h | Energia: -{local.tempo_de_ir * 10}")
         print("  0 - Sair do Jogo")
-        print("  9 - Falar com o Agiota")
 
         opcao = input("\nEscolha seu destino: ").strip()
 
@@ -188,13 +187,6 @@ def main():
             if confirmar == 's':
                 print("\nObrigado por jogar Pokémon CMD!")
                 break
-            continue
-
-        if opcao == "9":
-            valor = float(input("Quanto quer pegar emprestado? "))
-            prazo = int(input("Em quantos dias vai pagar? "))
-            agiota.pegar_emprestimo(valor, prazo)
-            input("Pressione Enter...")
             continue
 
         try:

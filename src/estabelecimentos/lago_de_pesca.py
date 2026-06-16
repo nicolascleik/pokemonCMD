@@ -2,7 +2,6 @@ import random
 from models.estabelecimento import Estabelecimento
 from models.batalha import Batalha
 
-# Importe apenas os Pokémons de Água
 from pokemons_comuns.squirtle import Squirtle
 from pokemons_comuns.blastoise import Blastoise
 from pokemons_comuns.slowpoke import Slowpoke

@@ -2,7 +2,6 @@ import random
 from models.estabelecimento import Estabelecimento
 from models.batalha import Batalha
 
-# Importando TODOS os pokemons comuns
 from pokemons_comuns.pikachu import Pikachu
 from pokemons_comuns.charmander import Charmander
 from pokemons_comuns.bulbasaur import Bulbasaur
@@ -19,7 +18,6 @@ from pokemons_comuns.jigglypuff import Jigglypuff
 from pokemons_comuns.haunter import Haunter
 from pokemons_comuns.chikoritta import Chikoritta
 
-# Importando Pokemons Lendarios
 from pokemons_lendarios.mewtwo import Mewtwo
 from pokemons_lendarios.articuno import Articuno
 from pokemons_lendarios.dialga import Dialga

@@ -1,7 +1,5 @@
 import random
 import time
-import copy
-
 
 class Batalha:
     """
@@ -131,7 +129,7 @@ class Batalha:
         if random.random() < chance_final:
             print(f"GOTCHA! O {self._wild_pokemon.nome} foi capturado!")
 
-            pokemon_capturado = copy.deepcopy(self._wild_pokemon)
+            pokemon_capturado = self._wild_pokemon.__class__()
             pokemon_capturado.curar()
 
             self._player.adicionar_pokemon(pokemon_capturado)

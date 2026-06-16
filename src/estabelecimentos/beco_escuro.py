@@ -3,15 +3,16 @@ from models.estabelecimento import Estabelecimento
 class BecoEscuro(Estabelecimento):
     """
     Local onde o jogador pode negociar dívidas com o Agiota.
+    Respeita estritamente o contrato da classe abstrata Estabelecimento.
     """
 
-    def __init__(self):
+    def __init__(self, agiota):
         super().__init__("Beco Escuro", tempo_de_ir=1)
         self._agiota = agiota
 
     def interagir(self, jogador, relogio) -> None:
         """
-        Interação estendida: aceita a instância do agiota para operações financeiras.
+        Interação polimórfica que usa o agiota injetado para operações financeiras.
         """
         while True:
             print("\n--- O AGIOTA ESTÁ TE ESPERANDO NAS SOMBRAS ---")
@@ -26,7 +27,7 @@ class BecoEscuro(Estabelecimento):
                 try:
                     valor = float(input("Quanto deseja pegar emprestado? "))
                     prazo = int(input("Em quantos dias pretende pagar? "))
-                    if agiota.pegar_emprestimo(valor, prazo):
+                    if self._agiota.pegar_emprestimo(valor, prazo):
                         print(f"\n[!] Empréstimo de ${valor:.2f} aprovado!")
                     else:
                         print("\n[!] O Agiota negou o pedido (você já tem uma dívida ativa).")
@@ -36,7 +37,7 @@ class BecoEscuro(Estabelecimento):
             elif escolha == "2":
                 try:
                     valor = float(input(f"Quanto deseja pagar? (Dívida: ${jogador.divida:.2f}): "))
-                    if agiota.pagar_divida(valor):
+                    if self._agiota.pagar_divida(valor):
                         print("\n[!] Pagamento efetuado com sucesso.")
                     else:
                         print("\n[!] Pagamento recusado (saldo insuficiente ou valor inválido).")
