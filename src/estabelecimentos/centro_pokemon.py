@@ -27,8 +27,10 @@ class CentroPokemon(Estabelecimento):
                 break
 
             print("--- Sua Equipe ---")
-            for i, pkm in enumerate(equipe):
-                print(f"{i + 1} - {pkm.nome} (HP: {pkm.vida_atual}/{pkm.hp_maximo})")
+            contador = 1
+            for pkm in equipe:
+                print(f"{contador} - {pkm.nome} (HP: {pkm.vida_atual}/{pkm.hp_maximo})")
+                contador += 1
 
             print("\nOpções:")
             print("1 a X: Digite o número do Pokémon para curar")
@@ -43,7 +45,10 @@ class CentroPokemon(Estabelecimento):
 
             elif escolha == 'T':
                 # Filtra apenas os Pokémons que realmente precisam de cura
-                precisam_cura = [p for p in equipe if p.vida_atual < p.hp_maximo]
+                precisam_cura = []
+                for p in equipe:
+                    if p.vida_atual < p.hp_maximo:
+                        precisam_cura.append(p)
 
                 if not precisam_cura:
                     print("\nSua equipe já está com a saúde perfeita!")

@@ -31,6 +31,7 @@ class Mercadinho(Estabelecimento):
             print("1: Comprar Itens")
             print("2: Vender Itens (Peixes e Sobras)")
             print("3: Trabalhar no estoque (Gasta 4h e 40 de Energia | Ganha $60.00)")
+            print("4: Comprar Mochila Maior (Aumenta limite para mais 6 Pokémons | Custa $200.00)")
             print("0: Sair da loja")
             print("====================================")
 
@@ -52,7 +53,12 @@ class Mercadinho(Estabelecimento):
                     print(f"3: {p_bola.nome} - ${p_bola.valor:.2f}")
                     print(f"4: {salgado.nome} - ${salgado.valor:.2f}")
                     print(f"5: {marmita.nome} - ${marmita.valor:.2f}")
-                    print(f"6: {maca.nome} - ${maca.valor:.2f}")
+                    
+                    previsao_bolsa = jogador.capacidade_bolsa + 6
+                    if previsao_bolsa > 20:
+                        previsao_bolsa = 20
+
+                    print(f"4: Expandir Mochila (Aumenta limite para {previsao_bolsa} Pokémons | Custa $200.00)")
                     print("0: Voltar ao menu principal")
                     print("-----------------------")
 
@@ -195,6 +201,35 @@ class Mercadinho(Estabelecimento):
 
                 print(f"Turno finalizado! Você recebeu ${salario:.2f}.")
                 print(f"Agora são {relogio.hora_atual}:00h.")
+
+            # ==========================================
+            # EXPANDIR MOCHILA (Mecânica Progressiva)
+            # ==========================================
+            elif opcao_principal == "4":
+                preco_mochila = 200.0
+                limite_maximo = 20
+                incremento = 6
+                
+                # 1. Checa se já atingiu o teto do jogo
+                if jogador.capacidade_bolsa >= limite_maximo:
+                    print(f"\n[Gerente] 'Sua bolsa já atingiu o limite máximo de {limite_maximo} espaços. Não tenho como costurar mais bolsos nela!'")
+                    
+                # 2. Checa se tem dinheiro para o upgrade
+                elif jogador.dinheiro >= preco_mochila:
+                    # Calcula a nova capacidade
+                    nova_capacidade = jogador.capacidade_bolsa + incremento
+                    
+                    # Trava o valor no limite máximo caso a soma passe de 20
+                    if nova_capacidade > limite_maximo:
+                        nova_capacidade = limite_maximo
+                    
+                    # Aplica as mudanças de estado
+                    jogador.modificar_dinheiro(-preco_mochila)
+                    jogador.expandir_bolsa(nova_capacidade)
+                    print(f"\n[!] Compra efetuada! Você pagou ${preco_mochila:.2f}.")
+                    
+                else:
+                    print(f"\n[!] Saldo insuficiente. O material para expandir a mochila custa ${preco_mochila:.2f}.")
 
             else:
                 print("Opção inválida.")
