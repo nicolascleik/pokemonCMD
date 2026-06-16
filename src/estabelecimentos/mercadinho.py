@@ -2,7 +2,7 @@ from models.estabelecimento import Estabelecimento
 from itens.pocao_grande import PocaoGrande
 from itens.pocao_pequena import PocaoPequena
 from itens.pokebola import Pokebola
-from itens.salgado import Salgado
+from itens.salgadinho import Salgadinho
 from itens.marmita import Marmita
 from itens.maca import Maca
 
@@ -21,7 +21,7 @@ class Mercadinho(Estabelecimento):
         p_grande = PocaoGrande()
         p_pequena = PocaoPequena()
         p_bola = Pokebola()
-        salgado = Salgado()
+        salgado = Salgadinho()
         marmita = Marmita()
         maca = Maca()
 

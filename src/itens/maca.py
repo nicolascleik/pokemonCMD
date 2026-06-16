@@ -2,7 +2,7 @@ from models.item import Item
 
 class Maca(Item):
     def __init__(self):
-        super().__init__("MAÇA", 5.0)
+        super().__init__("MAÇÃ", 5.0)
 
     def usar(self, jogador) -> bool:
         if jogador.energia_atual >= jogador.energia_maxima:

@@ -131,7 +131,7 @@ def main():
         LagoDePesca(),
         Cassino(),
         ArenaDeBatalha(),
-        BecoEscuro(Agiota)
+        BecoEscuro(agiota)
     ]
 
     input("\nSua jornada começa agora! Pressione Enter para continuar...")

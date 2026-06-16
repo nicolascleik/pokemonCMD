@@ -50,7 +50,7 @@ class CavernaCerulean(Estabelecimento):
     def interagir(self, jogador, relogio) -> None:
         while True:
             print("\n" + "T " * 15)
-            print("      CAVERRNA CERULEAN      ")
+            print("      CAVERNA CERULEAN      ")
             print("T " * 15)
             print("1 - Procurar Pokémon Selvagem (Gasta 3h e 25 Energia)")
             print("0 - Sair da Caverna")

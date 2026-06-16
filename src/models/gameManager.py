@@ -20,7 +20,7 @@ class GameManager:
         """
         # Falência total: Sem dinheiro, com dívida, sem como se curar
         if self._jogador.dinheiro <= 0 and self._jogador.divida > 0:
-            if not self._jogador.possui_item("POKEBOLA") and not self._jogador.possui_item("POCAOGRANDE"):
+            if not self._jogador.possui_item("POKEBOLA") and not self._jogador.possui_item("POÇÃO GRANDE"):
                 # Opcional: Você pode checar se a equipe toda está desmaiada aqui também
                 print("\n" + "=" * 40)
                 print("GAME OVER - FALÊNCIA ABSOLUTA")

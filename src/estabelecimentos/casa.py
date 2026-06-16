@@ -13,29 +13,30 @@ class Casa(Estabelecimento):
         """
         O menu que aparece quando o jogador entra na casa.
         """
-        print(f"\n[{self.nome}] O que você deseja fazer?")
-        print("1 - Dormir na cama (Avança para o próximo dia)")
-        print("2 - Voltar para a rua")
+        while True:
+            print(f"\n[{self.nome}] O que você deseja fazer?")
+            print("1 - Dormir na cama (Avança para o próximo dia)")
+            print("0 - Sair")
 
-        escolha = input("Escolha: ")
+            escolha = input("Escolha: ")
 
-        if escolha == "1":
-            print("\n🏠 Você deita em sua cama confortável e relaxa...")
+            if escolha == "1":
+                print("\n🏠 Você deita em sua cama confortável e relaxa...")
 
-            # 1. Reseta o ciclo do tempo
-            relogio.virar_dia()
+                # 1. Reseta o ciclo do tempo
+                relogio.virar_dia()
 
-            # 2. Restaura o estado biológico do jogador
-            jogador.resetar_energia()
-            print("💤 Suas energias foram completamente restauradas!")
+                # 2. Restaura o estado biológico do jogador
+                jogador.resetar_energia()
+                print("💤 Suas energias foram completamente restauradas!")
 
-            # (Opcional) Você pode adicionar uma pequena cura para os Pokémons ao dormir em casa
-            for pkm in jogador.obter_equipe():
-                pkm.curar(20)
+                # (Opcional) Você pode adicionar uma pequena cura para os Pokémons ao dormir em casa
+                for pkm in jogador.obter_equipe():
+                    pkm.curar(20)
 
-            # Obs: A cobrança do agiota será chamada pelo main.py quando perceber que o dia virou.
+                # Obs: A cobrança do agiota será chamada pelo main.py quando perceber que o dia virou.
 
-        elif escolha == "2":
-            print("Você decidiu voltar para a cidade.")
-        else:
-            print("Opção inválida.")
+            elif escolha == "0":
+                print("Você decidiu voltar para a cidade.")
+            else:
+                print("Opção inválida.")
